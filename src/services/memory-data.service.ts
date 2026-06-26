@@ -1,52 +1,15 @@
 import { Types } from "mongoose";
-
-export interface MemoryUser {
-  _id: string;
-  name: string;
-  username: string;
-  email: string;
-  isActive: boolean;
-}
-
-export interface MemoryDiscipline {
-  _id: string;
-  label: string;
-  order: number;
-  isActive: boolean;
-}
-
-export interface MemoryStatus {
-  _id: string;
-  label: string;
-  order: number;
-  isActive: boolean;
-}
-
-export interface MemoryPost {
-  _id: string;
-  title: string;
-  content: string;
-  summary: string;
-  imageUrl?: string;
-  series?: string;
-  semester?: string;
-  discipline: MemoryDiscipline;
-  author: Pick<MemoryUser, "_id" | "name" | "username" | "email">;
-  status: Pick<MemoryStatus, "_id" | "label" | "order">;
-  createDate: string;
-  updateDate: string;
-}
-
-interface MemoryStore {
-  users: MemoryUser[];
-  disciplines: MemoryDiscipline[];
-  statuses: MemoryStatus[];
-  posts: MemoryPost[];
-}
+import {
+  IMemoryDiscipline,
+  IMemoryPost,
+  IMemoryStatus,
+  IMemoryStore,
+  IMemoryUser,
+} from "../interfaces/IMemory";
 
 const createId = (): string => new Types.ObjectId().toString();
 
-const createInitialStore = (): MemoryStore => {
+const createInitialStore = (): IMemoryStore => {
   const professorId = createId();
   const studentId = createId();
   const mathId = createId();
@@ -55,7 +18,7 @@ const createInitialStore = (): MemoryStore => {
   const draftId = createId();
   const now = new Date().toISOString();
 
-  const users: MemoryUser[] = [
+  const users: IMemoryUser[] = [
     {
       _id: professorId,
       name: "Ana Professora",
@@ -72,17 +35,17 @@ const createInitialStore = (): MemoryStore => {
     },
   ];
 
-  const disciplines: MemoryDiscipline[] = [
+  const disciplines: IMemoryDiscipline[] = [
     { _id: mathId, label: "Matemática", order: 1, isActive: true },
     { _id: physicsId, label: "Física", order: 2, isActive: true },
   ];
 
-  const statuses: MemoryStatus[] = [
+  const statuses: IMemoryStatus[] = [
     { _id: publishedId, label: "Publicado", order: 1, isActive: true },
     { _id: draftId, label: "Rascunho", order: 2, isActive: true },
   ];
 
-  const posts: MemoryPost[] = [
+  const posts: IMemoryPost[] = [
     {
       _id: createId(),
       title: "Introdução a Funções",
@@ -111,37 +74,40 @@ const createInitialStore = (): MemoryStore => {
   return { users, disciplines, statuses, posts };
 };
 
-let memoryStore: MemoryStore = createInitialStore();
+let memoryStore: IMemoryStore = createInitialStore();
 
 export const resetMemoryStore = (): void => {
   memoryStore = createInitialStore();
 };
 
-export const getMemoryUsers = (): MemoryUser[] => memoryStore.users;
+export const getMemoryUsers = (): IMemoryUser[] => memoryStore.users;
 
-export const getMemoryDisciplines = (): MemoryDiscipline[] => memoryStore.disciplines;
+export const getMemoryDisciplines = (): IMemoryDiscipline[] =>
+  memoryStore.disciplines;
 
-export const getMemoryStatuses = (): MemoryStatus[] => memoryStore.statuses;
+export const getMemoryStatuses = (): IMemoryStatus[] => memoryStore.statuses;
 
-export const getMemoryPosts = (): MemoryPost[] => memoryStore.posts;
+export const getMemoryPosts = (): IMemoryPost[] => memoryStore.posts;
 
-export const findMemoryUserById = (id: string): MemoryUser | undefined =>
+export const findMemoryUserById = (id: string): IMemoryUser | undefined =>
   memoryStore.users.find((user) => user._id === id);
 
-export const findMemoryDisciplineById = (id: string): MemoryDiscipline | undefined =>
+export const findMemoryDisciplineById = (
+  id: string,
+): IMemoryDiscipline | undefined =>
   memoryStore.disciplines.find((discipline) => discipline._id === id);
 
-export const findMemoryStatusById = (id: string): MemoryStatus | undefined =>
+export const findMemoryStatusById = (id: string): IMemoryStatus | undefined =>
   memoryStore.statuses.find((status) => status._id === id);
 
-export const findMemoryPostById = (id: string): MemoryPost | undefined =>
+export const findMemoryPostById = (id: string): IMemoryPost | undefined =>
   memoryStore.posts.find((post) => post._id === id);
 
 export const createMemoryPost = (
-  post: Omit<MemoryPost, "_id" | "createDate" | "updateDate">,
-): MemoryPost => {
+  post: Omit<IMemoryPost, "_id" | "createDate" | "updateDate">,
+): IMemoryPost => {
   const now = new Date().toISOString();
-  const createdPost: MemoryPost = {
+  const createdPost: IMemoryPost = {
     ...post,
     _id: createId(),
     createDate: now,
@@ -155,8 +121,8 @@ export const createMemoryPost = (
 
 export const updateMemoryPost = (
   id: string,
-  updater: (post: MemoryPost) => MemoryPost,
-): MemoryPost | undefined => {
+  updater: (post: IMemoryPost) => IMemoryPost,
+): IMemoryPost | undefined => {
   const index = memoryStore.posts.findIndex((post) => post._id === id);
 
   if (index === -1) {
