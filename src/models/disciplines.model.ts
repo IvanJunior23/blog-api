@@ -1,10 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-
-export interface IDiscipline extends Document {
-  label: string;
-  order: number;
-  isActive: boolean;
-}
+import mongoose, { Schema } from "mongoose";
+import { IDiscipline } from "../interfaces/IDiscipline";
 
 const DisciplineSchema = new Schema<IDiscipline>(
   {
@@ -28,6 +23,9 @@ const DisciplineSchema = new Schema<IDiscipline>(
   },
 );
 
-const DisciplineModel = mongoose.model<IDiscipline>("Discipline", DisciplineSchema);
+const DisciplineModel = mongoose.model<IDiscipline>(
+  "Discipline",
+  DisciplineSchema,
+);
 
 export default DisciplineModel;

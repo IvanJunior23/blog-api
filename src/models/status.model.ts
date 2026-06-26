@@ -1,10 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-
-export interface IStatus extends Document {
-  label: string;
-  order: number;
-  isActive: boolean;
-}
+import mongoose, { Schema } from "mongoose";
+import { IStatus } from "../interfaces/IStatus";
 
 const StatusSchema = new Schema<IStatus>(
   {
