@@ -1,18 +1,5 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
-
-export interface IPost extends Document {
-  title: string;
-  content: string;
-  summary: string;
-  imageUrl?: string;
-  series?: string;
-  semester?: string;
-  discipline: Types.ObjectId;
-  author: Types.ObjectId;
-  status: Types.ObjectId;
-  createDate: Date;
-  updateDate: Date;
-}
+import mongoose, { Schema } from "mongoose";
+import { IPost } from "../interfaces/IPosts";
 
 const PostSchema = new Schema<IPost>(
   {
