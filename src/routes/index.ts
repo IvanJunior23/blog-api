@@ -1,8 +1,9 @@
 import { Router } from "express";
-import catalogRoutes from "./catalog.routes";
-import postsRoutes from "./posts.routes";
 import swaggerUi from "swagger-ui-express";
 import { openApiDocument } from "../docs/openapi";
+import catalogRoutes from "./catalog.routes";
+import healthRoutes from "./health.routes";
+import postsRoutes from "./posts.routes";
 
 const routes = Router();
 
@@ -10,6 +11,7 @@ routes.get("/", (_req, res) => {
   res.redirect("/docs");
 });
 
+routes.use("/health", healthRoutes);
 routes.use(
   "/docs",
   swaggerUi.serve,

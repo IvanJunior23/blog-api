@@ -104,6 +104,25 @@ USE_IN_MEMORY_DB=false
 MONGODB_URI=mongodb://adm:adm@localhost:27017/blog_api?authSource=admin
 ```
 
+## Exemplo do `.env` para uso com Docker Compose
+
+O arquivo `.env.example` do projeto já está preparado para o ambiente com containers e inclui:
+
+```env
+NODE_ENV=production
+PORT=3000
+
+MONGO_INITDB_ROOT_USERNAME=adm
+MONGO_INITDB_ROOT_PASSWORD=adm
+MONGO_INITDB_DATABASE=blog_api
+MONGO_PORT=27017
+
+USE_IN_MEMORY_DB=false
+MONGODB_URI=mongodb://adm:adm@db:27017/blog_api?authSource=admin
+```
+
+> 💡 No Docker Compose, o host `db` é o nome do serviço do MongoDB.
+
 se USE_IN_MEMORY_DB=true usara memoria local
 
 > 💡 O arquivo `.env` contém variáveis sensíveis e não deve ser enviado para o GitHub.
@@ -144,16 +163,22 @@ meu-projeto-app-1     running               0.0.0.0:3000->3000/tcp
 meu-projeto-db-1      running (healthy)     0.0.0.0:27017->27017/tcp
 ```
 
+> 💡 Após a inicialização completa, a API também deve responder ao endpoint `/health`, utilizado no healthcheck do container e na validação da pipeline.
+
 ---
 
 # 🌐 Acessando a aplicação
 
 Após subir os containers:
 
-| Serviço | URL                   |
-| ------- | --------------------- |
-| API     | http://localhost:3000 |
-| MongoDB | localhost:27017       |
+| Serviço     | URL                            |
+| ----------- | ------------------------------ |
+| API         | http://localhost:3000          |
+| Swagger     | http://localhost:3000/docs     |
+| Healthcheck | http://localhost:3000/health   |
+| MongoDB     | localhost:27017                |
+
+> 💡 A rota raiz `http://localhost:3000/` redireciona para a documentação Swagger.
 
 ---
 
@@ -345,6 +370,8 @@ package.json
 .env.example
 ```
 
+Além dessa estrutura, o projeto também conta com o workflow `.github/workflows/ci.yml` para automatizar a validação no GitHub Actions.
+
 ---
 
 # 🏗️ Arquitetura da aplicação
@@ -381,6 +408,16 @@ Push para o GitHub
   └── docker compose down
 ```
 
+No workflow atual em `.github/workflows/ci.yml`, essa validação foi detalhada em:
+
+- `npm ci`
+- `npm test`
+- `npm run build`
+- `docker build --target test -t blog-api:test .`
+- `docker compose up --build -d`
+- smoke test em `http://127.0.0.1:3000/health`
+- `docker compose down -v`
+
 Isso garante que:
 
 - os testes estejam funcionando
@@ -402,6 +439,16 @@ Ou altere a porta no `docker-compose.yml`:
 ```yaml
 ports:
   - "3001:3000"
+```
+
+---
+
+## Porta 27017 já está em uso
+
+Altere a variável `MONGO_PORT` no `.env`:
+
+```env
+MONGO_PORT=27018
 ```
 
 ---
