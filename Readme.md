@@ -42,7 +42,9 @@ Além disso, o projeto segue conceitos importantes de desenvolvimento back-end m
 - [Executando os testes](#-executando-os-testes)
 - [Rotas disponíveis](#-rotas-disponíveis)
 - [Estrutura do projeto](#-estrutura-do-projeto)
+- [Healthcheck](#healthcheck)
 - [Pipeline CI/CD](#-pipeline-cicd)
+- [Arquitetura da aplicação](#-arquitetura-da-aplicação)
 - [Solução de problemas](#-solução-de-problemas)
 
 ---
@@ -64,10 +66,10 @@ Você precisa apenas de:
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/seu-usuario/meu-projeto.git
+git clone https://github.com/Roch-Daniel/blog-api
 
 # Entrar na pasta do projeto
-cd meu-projeto
+cd blog-api
 ```
 
 ---
@@ -123,7 +125,7 @@ MONGODB_URI=mongodb://adm:adm@db:27017/blog_api?authSource=admin
 
 > 💡 No Docker Compose, o host `db` é o nome do serviço do MongoDB.
 
-se USE_IN_MEMORY_DB=true usara memoria local
+Quando USE_IN_MEMORY_DB=true, a aplicação utiliza um repositório em memória, dispensando a necessidade de um MongoDB. Esse modo é útil para desenvolvimento local, demonstrações e testes manuais.
 
 > 💡 O arquivo `.env` contém variáveis sensíveis e não deve ser enviado para o GitHub.
 
@@ -159,8 +161,8 @@ Exemplo esperado:
 
 ```bash
 NAME                  STATUS                PORTS
-meu-projeto-app-1     running               0.0.0.0:3000->3000/tcp
-meu-projeto-db-1      running (healthy)     0.0.0.0:27017->27017/tcp
+blog-api-app-1     running               0.0.0.0:3000->3000/tcp
+blog-api-db-1      running (healthy)     0.0.0.0:27017->27017/tcp
 ```
 
 > 💡 Após a inicialização completa, a API também deve responder ao endpoint `/health`, utilizado no healthcheck do container e na validação da pipeline.
@@ -171,14 +173,17 @@ meu-projeto-db-1      running (healthy)     0.0.0.0:27017->27017/tcp
 
 Após subir os containers:
 
-| Serviço     | URL                            |
-| ----------- | ------------------------------ |
-| API         | http://localhost:3000          |
-| Swagger     | http://localhost:3000/docs     |
-| Healthcheck | http://localhost:3000/health   |
-| MongoDB     | localhost:27017                |
+| Serviço     | URL                          |
+| ----------- | ---------------------------- |
+| API         | http://localhost:3000        |
+| Swagger     | http://localhost:3000/docs   |
+| Healthcheck | http://localhost:3000/health |
+| MongoDB     | localhost:27017              |
 
 > 💡 A rota raiz `http://localhost:3000/` redireciona para a documentação Swagger.
+
+> 📖 A documentação OpenAPI está disponível em: `http://localhost:3000/docs`.
+> Ela permite visualizar e testar todos os endpoints diretamente pelo navegador.
 
 ---
 
@@ -244,6 +249,9 @@ docker compose down
 ```
 
 ## Remover containers e banco de dados
+
+O projeto utiliza MongoDB através do Mongoose.
+Os relacionamentos entre Post, User, Status e Discipline são feitos utilizando ObjectId.
 
 ```bash
 docker compose down -v
@@ -311,37 +319,27 @@ As referências são persistidas no MongoDB por `ObjectId` e retornadas populada
 
 # 🛣️ Rotas disponíveis
 
-| Método | Endpoint           | Descrição |
-| ------ | ------------------ | --------- |
-| GET    | `/catalog/users`           | Lista usuários disponíveis para teste |
-| POST   | `/catalog/users`           | Cria um novo usuário |
-| PUT    | `/catalog/users/:id`       | Atualiza um usuário existente |
-| DELETE | `/catalog/users/:id`       | Remove um usuário existente |
-| GET    | `/catalog/disciplines`     | Lista disciplinas disponíveis para seleção |
-| POST   | `/catalog/disciplines`     | Cria uma nova disciplina |
-| PUT    | `/catalog/disciplines/:id` | Atualiza uma disciplina existente |
-| DELETE | `/catalog/disciplines/:id` | Remove uma disciplina existente |
-| GET    | `/catalog/status`          | Lista status disponíveis para seleção |
-| POST   | `/catalog/status`          | Cria um novo status |
-| PUT    | `/catalog/status/:id`      | Atualiza um status existente |
-| DELETE | `/catalog/status/:id`      | Remove um status existente |
-| GET    | `/posts`           | Lista somente os posts com status ativo |
-| GET    | `/posts/:id`       | Busca um post por ID |
-| POST   | `/posts`           | Cria um post validando autor com domínio `@professor.com` |
-| PUT    | `/posts/:id`       | Atualiza um post existente |
-| DELETE | `/posts/:id`       | Remove um post existente |
+| Método | Endpoint                   | Descrição                                                 |
+| ------ | -------------------------- | --------------------------------------------------------- |
+| GET    | `/catalog/users`           | Lista usuários disponíveis para teste                     |
+| POST   | `/catalog/users`           | Cria um novo usuário                                      |
+| PUT    | `/catalog/users/:id`       | Atualiza um usuário existente                             |
+| DELETE | `/catalog/users/:id`       | Remove um usuário existente                               |
+| GET    | `/catalog/disciplines`     | Lista disciplinas disponíveis para seleção                |
+| POST   | `/catalog/disciplines`     | Cria uma nova disciplina                                  |
+| PUT    | `/catalog/disciplines/:id` | Atualiza uma disciplina existente                         |
+| DELETE | `/catalog/disciplines/:id` | Remove uma disciplina existente                           |
+| GET    | `/catalog/status`          | Lista status disponíveis para seleção                     |
+| POST   | `/catalog/status`          | Cria um novo status                                       |
+| PUT    | `/catalog/status/:id`      | Atualiza um status existente                              |
+| DELETE | `/catalog/status/:id`      | Remove um status existente                                |
+| GET    | `/posts`                   | Lista somente os posts com status ativo                   |
+| GET    | `/posts/:id`               | Busca um post por ID                                      |
+| POST   | `/posts`                   | Cria um post validando autor com domínio `@professor.com` |
+| PUT    | `/posts/:id`               | Atualiza um post existente                                |
+| DELETE | `/posts/:id`               | Remove um post existente                                  |
 
 > 💡 O `GET /posts` retorna apenas posts vinculados a um status com `isActive: true`. Posts com status inativo não aparecem na listagem.
-
----
-
-# 🛣️ Rotas disponíveis
-
-| Método | Endpoint     | Descrição            |
-| ------ | ------------ | -------------------- |
-| GET    | `/`          | Status da API        |
-| GET    | `/posts`     | Lista todos os posts |
-| GET    | `/posts/:id` | Busca um post por ID |
 
 ---
 
@@ -349,13 +347,16 @@ As referências são persistidas no MongoDB por `ObjectId` e retornadas populada
 
 ```bash
 src/
-├── controllers/
-├── services/
-├── routes/
-├── middlewares/
-├── schemas/
 ├── config/
+├── controllers/
+├── docs/
 ├── interfaces/
+├── middlewares/
+├── models/
+├── routes/
+├── schemas/
+├── scripts/
+├── services/
 ├── app.ts
 └── index.ts
 
@@ -374,18 +375,48 @@ Além dessa estrutura, o projeto também conta com o workflow `.github/workflows
 
 ---
 
+## Healthcheck
+
+A aplicação disponibiliza o endpoint:
+
+GET /health
+
+Ele é utilizado para:
+
+- Docker Healthcheck
+- GitHub Actions
+- Monitoramento
+- Ferramentas de Deploy
+
+O endpoint retorna:
+
+```
+{
+    status,
+    database,
+    service,
+    timestamp
+}
+```
+
+---
+
 # 🏗️ Arquitetura da aplicação
 
 O projeto utiliza arquitetura MVC para organização das responsabilidades:
 
-| Camada      | Responsabilidade                          |
-| ----------- | ----------------------------------------- |
-| Routes      | Gerenciamento das rotas                   |
-| Controllers | Controle das requisições                  |
-| Services    | Regras de negócio                         |
-| Schemas     | Validação e sanitização dos dados com Zod |
-| Models      | Estrutura e manipulação dos dados         |
-| Middlewares | Validação de entrada e tratamento de erros|
+| Camada      | Responsabilidade                           |
+| ----------- | ------------------------------------------ |
+| Routes      | Gerenciamento das rotas                    |
+| Controllers | Controle das requisições                   |
+| Services    | Regras de negócio                          |
+| Schemas     | Validação e sanitização dos dados com Zod  |
+| Models      | Estrutura e manipulação dos dados          |
+| Middlewares | Validação de entrada e tratamento de erros |
+| Config      | Configuração da aplicação                  |
+| Docs        | Documentação OpenAPI                       |
+| Scripts     | Seed do banco                              |
+| Tests       | Testes automatizados                       |
 
 ---
 
