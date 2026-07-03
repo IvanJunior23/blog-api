@@ -9,6 +9,8 @@ RUN npm ci --no-audit --no-fund
 
 FROM deps AS test
 
+ENV JWT_SECRET=3f8a2c1d9e4b7f6a0c5d2e8b1a4f7c9d3e6b0a2f5c8d1e4b7a0c3d6f9e2b5a8
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libcurl4 \
     && rm -rf /var/lib/apt/lists/*
