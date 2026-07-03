@@ -37,7 +37,7 @@ export const showPost = async (req: Request, res: Response, next: NextFunction) 
 
 export const storePost = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const post = await createPost(req.body);
+    const post = await createPost({ ...req.body, authorId: req.user!._id.toString() });
 
     return res.status(201).json({
       data: post,
@@ -49,7 +49,7 @@ export const storePost = async (req: Request, res: Response, next: NextFunction)
 
 export const updatePostById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const post = await updatePost(getRouteId(req.params.id), req.body);
+    const post = await updatePost(getRouteId(req.params.id), { ...req.body, authorId: req.user!._id.toString() });
 
     return res.status(200).json({
       data: post,
@@ -61,7 +61,7 @@ export const updatePostById = async (req: Request, res: Response, next: NextFunc
 
 export const patchPostById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const post = await updatePost(getRouteId(req.params.id), req.body);
+    const post = await updatePost(getRouteId(req.params.id), { ...req.body, authorId: req.user!._id.toString() });
 
     return res.status(200).json({
       data: post,

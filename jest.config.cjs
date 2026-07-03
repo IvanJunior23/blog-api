@@ -5,4 +5,5 @@ module.exports = {
   roots: ["<rootDir>/tests"],
   testMatch: ["**/?(*.)+(spec|test).ts"],
   clearMocks: true,
+  setupFiles: ["dotenv/config"],
 };

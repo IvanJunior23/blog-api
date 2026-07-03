@@ -7,16 +7,17 @@ import {
   storePost,
   updatePostById,
 } from "../controllers/posts.controller";
+import { requireProfessor } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import { createPostSchema, updatePartialPostSchema } from "../schemas/posts.schema";
 
 const postsRoutes = Router();
 
 postsRoutes.get("/", listPosts);
-postsRoutes.post("/", validate(createPostSchema), storePost);
+postsRoutes.post("/", requireProfessor, validate(createPostSchema), storePost);
 postsRoutes.get("/:id", showPost);
-postsRoutes.put("/:id", validate(createPostSchema), updatePostById);
-postsRoutes.patch("/:id", validate(updatePartialPostSchema), patchPostById);
-postsRoutes.delete("/:id", removePost);
+postsRoutes.put("/:id", requireProfessor, validate(createPostSchema), updatePostById);
+postsRoutes.patch("/:id", requireProfessor, validate(updatePartialPostSchema), patchPostById);
+postsRoutes.delete("/:id", requireProfessor, removePost);
 
 export default postsRoutes;

@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { isValidObjectId } from "mongoose";
 import DisciplineModel from "../models/disciplines.model";
 import StatusModel from "../models/status.model";
@@ -48,7 +49,9 @@ export const createUser = async (payload: CreateUserInput) => {
     throw createAppError("Email ou username já cadastrado", 409);
   }
 
-  return UserModel.create(payload);
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+  return UserModel.create({ ...payload, password: hashedPassword });
 };
 
 export const updateUser = async (id: string, payload: Partial<CreateUserInput>) => {
@@ -67,7 +70,7 @@ export const updateUser = async (id: string, payload: Partial<CreateUserInput>) 
     user.username = payload.username;
   }
   if (payload.password !== undefined) {
-    user.password = payload.password;
+    user.password = await bcrypt.hash(payload.password, 10);
   }
   if (payload.email !== undefined) {
     user.email = payload.email;
