@@ -320,6 +320,52 @@ Relacionamentos aplicados:
 
 As referências são persistidas no MongoDB por `ObjectId` e retornadas populadas nas consultas de posts.
 
+# Autenticação JWT
+
+As rotas de escrita em `/posts` (POST, PUT, PATCH, DELETE) exigem autenticação via JWT. Apenas usuários com email terminando em `@professor.com` e conta ativa podem realizar essas operações.
+
+## Obtendo o token
+
+```bash
+curl --request POST http://localhost:3000/auth/login \
+  --header "Content-Type: application/json" \
+  --data '{
+    "email": "professor@professor.com",
+    "password": "senha123"
+  }'
+```
+
+Resposta:
+
+```json
+{
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "60d5ecb8b392d21534c32b11",
+      "name": "Professor Exemplo",
+      "email": "professor@professor.com"
+    }
+  }
+}
+```
+
+O token tem validade de 8 horas.
+
+## Utilizando o token
+
+Inclua o token no cabeçalho `Authorization` em todas as requisições de escrita:
+
+```
+Authorization: Bearer <token>
+```
+
+Sem o token, a API retorna `401 Unauthorized`. Com um token de usuário sem domínio `@professor.com`, retorna `403 Forbidden`.
+
+## Senhas
+
+As senhas são armazenadas com hash `bcrypt` (fator de custo 10). O seed (`npm run seed`) cria os usuários iniciais com as senhas já hasheadas corretamente.
+
 # 🛣️ Rotas disponíveis
 
 | Método | Endpoint                   | Descrição                                                          |
