@@ -207,7 +207,6 @@ curl --request POST http://localhost:3000/posts \
     "content": "Conteúdo completo do post",
     "summary": "Resumo do post",
     "disciplineId": "ID_DA_DISCIPLINA",
-    "authorId": "ID_DO_PROFESSOR",
     "statusId": "ID_DO_STATUS"
   }'
 ```
