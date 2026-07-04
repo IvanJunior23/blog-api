@@ -368,6 +368,7 @@ Sem o token, a API retorna `401 Unauthorized`. Com um token de usuário sem dom�
 
 As senhas são armazenadas com hash `bcrypt` (fator de custo 10). O seed (`npm run seed`) cria os usuários iniciais com as senhas já hasheadas corretamente.
 
+
 # 🛣️ Rotas disponíveis
 
 | Método | Endpoint                   | Descrição                                                          |
