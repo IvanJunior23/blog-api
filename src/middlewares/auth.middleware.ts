@@ -13,7 +13,11 @@ export const requireProfessor = async (req: Request, res: Response, next: NextFu
   }
 
   const token = authHeader.split(" ")[1];
-  const secret = process.env.JWT_SECRET as string;
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET não configurada.");
+  }
 
   let payload: JwtPayload;
 
