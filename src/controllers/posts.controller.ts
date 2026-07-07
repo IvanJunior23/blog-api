@@ -4,6 +4,7 @@ import {
   deletePost,
   getAllPosts,
   getPostById,
+  searchPosts,
   updatePost,
 } from "../services/posts.services";
 
@@ -11,7 +12,11 @@ const getRouteId = (idParam: string | string[]): string => {
   return Array.isArray(idParam) ? idParam[0] : idParam;
 };
 
-export const listPosts = async (_req: Request, res: Response, next: NextFunction) => {
+export const listPosts = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const posts = await getAllPosts();
 
@@ -23,7 +28,11 @@ export const listPosts = async (_req: Request, res: Response, next: NextFunction
   }
 };
 
-export const showPost = async (req: Request, res: Response, next: NextFunction) => {
+export const showPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const post = await getPostById(getRouteId(req.params.id));
 
@@ -35,7 +44,11 @@ export const showPost = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-export const storePost = async (req: Request, res: Response, next: NextFunction) => {
+export const storePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const post = await createPost(req.body);
 
@@ -47,7 +60,11 @@ export const storePost = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-export const updatePostById = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePostById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const post = await updatePost(getRouteId(req.params.id), req.body);
 
@@ -59,7 +76,11 @@ export const updatePostById = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-export const patchPostById = async (req: Request, res: Response, next: NextFunction) => {
+export const patchPostById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const post = await updatePost(getRouteId(req.params.id), req.body);
 
@@ -71,11 +92,33 @@ export const patchPostById = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const removePost = async (req: Request, res: Response, next: NextFunction) => {
+export const removePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     await deletePost(getRouteId(req.params.id));
 
     return res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const searchPostsByTerm = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const term = String(req.query.q ?? "").trim();
+
+    const posts = await searchPosts(term);
+
+    return res.status(200).json({
+      data: posts,
+    });
   } catch (error) {
     next(error);
   }

@@ -12,9 +12,11 @@ import {
   findMemoryStatusById,
   findMemoryUserById,
   getMemoryPosts,
+  searchMemoryPosts,
   updateMemoryPost,
 } from "./memory-data.service";
 import { IPostPayload } from "../interfaces/IPosts";
+import { escapeRegex } from "../utils/regex";
 
 export type PostUpdatePayload = Partial<IPostPayload>;
 
@@ -411,4 +413,50 @@ export const deletePost = async (id: string) => {
 
   await ensureProfessorAuthor(post.author.toString());
   await PostModel.findByIdAndDelete(id);
+};
+
+export const searchPosts = async (term: string) => {
+  if (term === "") {
+    return [];
+  }
+
+  if (isMemoryMode()) {
+    return searchMemoryPosts(term);
+  }
+
+  const escapedTerm = escapeRegex(term);
+
+  const activeStatuses = await StatusModel.find({
+    isActive: true,
+  }).select("_id");
+
+  const activeStatusIds = activeStatuses.map((status) => status._id);
+
+  return PostModel.find({
+    status: {
+      $in: activeStatusIds,
+    },
+    $or: [
+      {
+        title: {
+          $regex: escapedTerm,
+          $options: "i",
+        },
+      },
+      {
+        summary: {
+          $regex: escapedTerm,
+          $options: "i",
+        },
+      },
+      {
+        content: {
+          $regex: escapedTerm,
+          $options: "i",
+        },
+      },
+    ],
+  })
+    .populate(postPopulate)
+    .sort({ createDate: -1 });
 };

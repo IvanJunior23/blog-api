@@ -6,15 +6,20 @@ import {
   showPost,
   storePost,
   updatePostById,
+  searchPostsByTerm,
 } from "../controllers/posts.controller";
 import { validate } from "../middlewares/validate.middleware";
-import { createPostSchema, updatePartialPostSchema } from "../schemas/posts.schema";
+import {
+  createPostSchema,
+  updatePartialPostSchema,
+} from "../schemas/posts.schema";
 
 const postsRoutes = Router();
 
 postsRoutes.get("/", listPosts);
-postsRoutes.post("/", validate(createPostSchema), storePost);
+postsRoutes.get("/search", searchPostsByTerm);
 postsRoutes.get("/:id", showPost);
+postsRoutes.post("/", validate(createPostSchema), storePost);
 postsRoutes.put("/:id", validate(createPostSchema), updatePostById);
 postsRoutes.patch("/:id", validate(updatePartialPostSchema), patchPostById);
 postsRoutes.delete("/:id", removePost);

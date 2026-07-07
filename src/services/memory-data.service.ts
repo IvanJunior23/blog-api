@@ -143,3 +143,13 @@ export const deleteMemoryPost = (id: string): boolean => {
   memoryStore.posts = memoryStore.posts.filter((post) => post._id !== id);
   return memoryStore.posts.length < initialLength;
 };
+
+export const searchMemoryPosts = (term: string) => {
+  const search = term.toLowerCase();
+
+  return getMemoryPosts().filter((post) =>
+    [post.title, post.summary, post.content].some((field) =>
+      field.toLowerCase().includes(search),
+    ),
+  );
+};
