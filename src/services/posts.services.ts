@@ -126,6 +126,16 @@ export const getAllPosts = async () => {
     .sort({ createDate: -1 });
 };
 
+export const getAllPostsForProfessor = async () => {
+  if (isMemoryMode()) {
+    return getMemoryPosts();
+  }
+
+  return PostModel.find()
+    .populate(postPopulate)
+    .sort({ createDate: -1 });
+};
+
 export const getPostById = async (id: string) => {
   validateObjectId(id, "id");
 

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  listAllPosts,
   listPosts,
   patchPostById,
   removePost,
@@ -14,6 +15,7 @@ import { createPostSchema, updatePartialPostSchema } from "../schemas/posts.sche
 const postsRoutes = Router();
 
 postsRoutes.get("/", listPosts);
+postsRoutes.get("/all", requireProfessor, listAllPosts);
 postsRoutes.post("/", requireProfessor, validate(createPostSchema), storePost);
 postsRoutes.get("/:id", showPost);
 postsRoutes.put("/:id", requireProfessor, validate(createPostSchema), updatePostById);

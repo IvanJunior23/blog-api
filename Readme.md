@@ -324,7 +324,7 @@ As referências são persistidas no MongoDB por `ObjectId` e retornadas populada
 
 # Autenticação JWT
 
-As rotas de escrita em `/posts` (POST, PUT, PATCH, DELETE) exigem autenticação via JWT. Apenas usuários com email terminando em `@professor.com` e conta ativa podem realizar essas operações.
+As rotas de escrita em `/posts` e `/catalog` (POST, PUT, PATCH, DELETE) exigem autenticação via JWT. Apenas usuários com email terminando em `@professor.com` e conta ativa podem realizar essas operações. As rotas de leitura (GET) permanecem públicas.
 
 ## Obtendo o token
 
@@ -366,32 +366,38 @@ Sem o token, a API retorna `401 Unauthorized`. Com um token de usuário sem dom�
 
 ## Senhas
 
-As senhas são armazenadas com hash `bcrypt` (fator de custo 10). O seed (`npm run seed`) cria os usuários iniciais com as senhas já hasheadas corretamente.
+As senhas são armazenadas com hash `bcrypt` (fator de custo 10). O seed (`npm run seed`) cria os usuários iniciais com as senhas já hasheadas corretamente. As respostas da API nunca expõem o campo de senha, nem mesmo o hash.
 
+## Limite de tentativas de login
+
+O endpoint `POST /auth/login` aceita no máximo 5 tentativas com falha por email a cada 15 minutos. Logins bem-sucedidos não consomem o limite. Ao exceder, a API retorna `429 Too Many Requests`. Essa proteção dificulta ataques de força bruta contra a senha de uma conta específica.
+
+---
 
 # 🛣️ Rotas disponíveis
 
-| Método | Endpoint                   | Descrição                                                          |
-| ------ | -------------------------- | ------------------------------------------------------------------ |
-| POST   | `/auth/login`              | Realiza login e retorna o token JWT                                |
-| GET    | `/catalog/users`           | Lista usuários disponíveis para teste                              |
-| POST   | `/catalog/users`           | Cria um novo usuário                                               |
-| PUT    | `/catalog/users/:id`       | Atualiza um usuário existente                                      |
-| DELETE | `/catalog/users/:id`       | Remove um usuário existente                                        |
-| GET    | `/catalog/disciplines`     | Lista disciplinas disponíveis para seleção                         |
-| POST   | `/catalog/disciplines`     | Cria uma nova disciplina                                           |
-| PUT    | `/catalog/disciplines/:id` | Atualiza uma disciplina existente                                  |
-| DELETE | `/catalog/disciplines/:id` | Remove uma disciplina existente                                    |
-| GET    | `/catalog/status`          | Lista status disponíveis para seleção                              |
-| POST   | `/catalog/status`          | Cria um novo status                                                |
-| PUT    | `/catalog/status/:id`      | Atualiza um status existente                                       |
-| DELETE | `/catalog/status/:id`      | Remove um status existente                                         |
-| GET    | `/posts`                   | Lista somente os posts com status ativo                            |
-| GET    | `/posts/:id`               | Busca um post por ID                                               |
-| POST   | `/posts`                   | Cria um post (requer token JWT de professor)                       |
-| PUT    | `/posts/:id`               | Atualiza todos os campos de um post (requer token JWT de professor)|
-| PATCH  | `/posts/:id`               | Atualiza parcialmente um post (requer token JWT de professor)      |
-| DELETE | `/posts/:id`               | Remove um post (requer token JWT de professor)                     |
+| Método | Endpoint                   | Descrição                                                                    |
+| ------ | -------------------------- | ---------------------------------------------------------------------------- |
+| POST   | `/auth/login`              | Realiza login e retorna o token JWT                                          |
+| GET    | `/catalog/users`           | Lista usuários disponíveis para teste                                        |
+| POST   | `/catalog/users`           | Cria um novo usuário (requer token JWT de professor)                         |
+| PUT    | `/catalog/users/:id`       | Atualiza um usuário existente (requer token JWT de professor)                |
+| DELETE | `/catalog/users/:id`       | Remove um usuário existente (requer token JWT de professor)                  |
+| GET    | `/catalog/disciplines`     | Lista disciplinas disponíveis para seleção                                   |
+| POST   | `/catalog/disciplines`     | Cria uma nova disciplina (requer token JWT de professor)                     |
+| PUT    | `/catalog/disciplines/:id` | Atualiza uma disciplina existente (requer token JWT de professor)            |
+| DELETE | `/catalog/disciplines/:id` | Remove uma disciplina existente (requer token JWT de professor)              |
+| GET    | `/catalog/status`          | Lista status disponíveis para seleção                                        |
+| POST   | `/catalog/status`          | Cria um novo status (requer token JWT de professor)                          |
+| PUT    | `/catalog/status/:id`      | Atualiza um status existente (requer token JWT de professor)                 |
+| DELETE | `/catalog/status/:id`      | Remove um status existente (requer token JWT de professor)                   |
+| GET    | `/posts`                   | Lista somente os posts com status ativo                                      |
+| GET    | `/posts/all`               | Lista todas as postagens, incluindo inativas (requer token JWT de professor) |
+| GET    | `/posts/:id`               | Busca um post por ID                                                         |
+| POST   | `/posts`                   | Cria um post (requer token JWT de professor)                                 |
+| PUT    | `/posts/:id`               | Atualiza todos os campos de um post (requer token JWT de professor)          |
+| PATCH  | `/posts/:id`               | Atualiza parcialmente um post (requer token JWT de professor)                |
+| DELETE | `/posts/:id`               | Remove um post (requer token JWT de professor)                               |
 
 > 💡 O `GET /posts` retorna apenas posts vinculados a um status com `isActive: true`. Posts com status inativo não aparecem na listagem.
 

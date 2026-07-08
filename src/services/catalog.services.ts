@@ -30,6 +30,11 @@ const validateObjectId = (value: string, fieldName: string): void => {
   }
 };
 
+const toUserResponse = (user: InstanceType<typeof UserModel>) => {
+  const { password: _password, ...safeUser } = user.toObject();
+  return safeUser;
+};
+
 // ─────────────────────────────── Usuários ────────────────────────────────────
 
 export const getAllUsers = async () => {
@@ -51,7 +56,9 @@ export const createUser = async (payload: CreateUserInput) => {
 
   const hashedPassword = await bcrypt.hash(payload.password, 10);
 
-  return UserModel.create({ ...payload, password: hashedPassword });
+  const user = await UserModel.create({ ...payload, password: hashedPassword });
+
+  return toUserResponse(user);
 };
 
 export const updateUser = async (id: string, payload: Partial<CreateUserInput>) => {
@@ -61,6 +68,26 @@ export const updateUser = async (id: string, payload: Partial<CreateUserInput>) 
 
   if (!user) {
     throw createAppError("Usuário não encontrado", 404);
+  }
+
+  if (payload.email !== undefined || payload.username !== undefined) {
+    const duplicateFilters = [];
+
+    if (payload.email !== undefined) {
+      duplicateFilters.push({ email: payload.email });
+    }
+    if (payload.username !== undefined) {
+      duplicateFilters.push({ username: payload.username });
+    }
+
+    const existing = await UserModel.findOne({
+      _id: { $ne: id },
+      $or: duplicateFilters,
+    });
+
+    if (existing) {
+      throw createAppError("Email ou username já cadastrado", 409);
+    }
   }
 
   if (payload.name !== undefined) {
@@ -81,7 +108,7 @@ export const updateUser = async (id: string, payload: Partial<CreateUserInput>) 
 
   await user.save();
 
-  return user;
+  return toUserResponse(user);
 };
 
 export const deleteUser = async (id: string) => {

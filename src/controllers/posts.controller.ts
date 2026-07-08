@@ -3,6 +3,7 @@ import {
   createPost,
   deletePost,
   getAllPosts,
+  getAllPostsForProfessor,
   getPostById,
   updatePost,
 } from "../services/posts.services";
@@ -14,6 +15,18 @@ const getRouteId = (idParam: string | string[]): string => {
 export const listPosts = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const posts = await getAllPosts();
+
+    return res.status(200).json({
+      data: posts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listAllPosts = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const posts = await getAllPostsForProfessor();
 
     return res.status(200).json({
       data: posts,

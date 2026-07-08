@@ -11,6 +11,7 @@ import UserModel from "../src/models/users.model";
 let mongoServer: MongoMemoryServer;
 let professorToken: string;
 let studentToken: string;
+let professorId: string;
 let disciplineId: string;
 let statusId: string;
 let postId: string;
@@ -65,6 +66,7 @@ beforeEach(async () => {
     status: status._id,
   });
 
+  professorId = professor.id;
   disciplineId = discipline.id;
   statusId = status.id;
   postId = post.id;
@@ -82,7 +84,10 @@ beforeEach(async () => {
 
 afterAll(async () => {
   await disconnectDB();
-  await mongoServer.stop();
+
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 });
 
 
@@ -142,6 +147,51 @@ describe("GET /posts", () => {
 });
 
 
+describe("GET /posts/all", () => {
+  it("deve retornar 401 sem token", async () => {
+    const response = await request(app).get("/posts/all");
+
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("deve retornar 403 com token de aluno", async () => {
+    const response = await request(app)
+      .get("/posts/all")
+      .set("Authorization", `Bearer ${studentToken}`);
+
+    expect(response.status).toBe(403);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("deve listar todos os posts para professor, incluindo os com status inativo", async () => {
+    const inactiveStatus = await StatusModel.create({
+      label: "Rascunho",
+      order: 2,
+      isActive: false,
+    });
+
+    await PostModel.create({
+      title: "Post com status inativo",
+      content: "Conteúdo oculto",
+      summary: "Resumo oculto",
+      discipline: disciplineId,
+      author: professorId,
+      status: inactiveStatus._id,
+    });
+
+    const publicResponse = await request(app).get("/posts");
+    const professorResponse = await request(app)
+      .get("/posts/all")
+      .set("Authorization", `Bearer ${professorToken}`);
+
+    expect(professorResponse.status).toBe(200);
+    expect(professorResponse.body.data).toHaveLength(2);
+    expect(publicResponse.body.data).toHaveLength(1);
+  });
+});
+
+
 describe("GET /posts/:id", () => {
   it("deve retornar erro para id inválido", async () => {
     const response = await request(app).get("/posts/teste");
@@ -165,6 +215,7 @@ describe("GET /posts/:id", () => {
 
 
 describe("POST /posts — autenticação", () => {
+describe("POST /posts - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente", async () => {
     const response = await request(app).post("/posts").send({
       title: "Post",
@@ -195,6 +246,7 @@ describe("POST /posts — autenticação", () => {
 });
 
 describe("POST /posts — validação de campos", () => {
+describe("POST /posts - validação de campos", () => {
   it("deve retornar 400 quando campos obrigatórios estiverem ausentes", async () => {
     const response = await request(app)
       .post("/posts")
@@ -326,6 +378,7 @@ describe("POST /posts", () => {
 
 
 describe("PUT /posts/:id — autenticação", () => {
+describe("PUT /posts/:id - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente no PUT", async () => {
     const response = await request(app).put(`/posts/${postId}`).send({
       title: "Título",
@@ -358,6 +411,7 @@ describe("PUT /posts/:id — autenticação", () => {
 });
 
 describe("PUT /posts/:id — validação de campos", () => {
+describe("PUT /posts/:id - validação de campos", () => {
   it("deve retornar 400 quando o body vier vazio", async () => {
     const response = await request(app)
       .put(`/posts/${postId}`)
@@ -472,6 +526,7 @@ describe("PUT /posts/:id", () => {
 });
 
 describe("PATCH /posts/:id — autenticação", () => {
+describe("PATCH /posts/:id - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente no PATCH", async () => {
     const response = await request(app)
       .patch(`/posts/${postId}`)
@@ -492,6 +547,7 @@ describe("PATCH /posts/:id — autenticação", () => {
 });
 
 describe("PATCH /posts/:id — validação de campos", () => {
+describe("PATCH /posts/:id - validação de campos", () => {
   it("deve retornar 400 quando o body vier vazio", async () => {
     const response = await request(app)
       .patch(`/posts/${postId}`)
@@ -572,6 +628,7 @@ describe("PATCH /posts/:id", () => {
 });
 
 describe("DELETE /posts/:id — autenticação", () => {
+describe("DELETE /posts/:id - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente no DELETE", async () => {
     const response = await request(app).delete(`/posts/${postId}`);
 
