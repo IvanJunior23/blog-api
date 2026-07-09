@@ -627,7 +627,6 @@ describe("PATCH /posts/:id", () => {
   });
 });
 
-describe("DELETE /posts/:id — autenticação", () => {
 describe("DELETE /posts/:id - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente no DELETE", async () => {
     const response = await request(app).delete(`/posts/${postId}`);
