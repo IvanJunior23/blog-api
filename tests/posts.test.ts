@@ -214,7 +214,6 @@ describe("GET /posts/:id", () => {
 });
 
 
-describe("POST /posts — autenticação", () => {
 describe("POST /posts - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente", async () => {
     const response = await request(app).post("/posts").send({
@@ -245,7 +244,6 @@ describe("POST /posts - autenticação", () => {
   });
 });
 
-describe("POST /posts — validação de campos", () => {
 describe("POST /posts - validação de campos", () => {
   it("deve retornar 400 quando campos obrigatórios estiverem ausentes", async () => {
     const response = await request(app)
@@ -377,7 +375,6 @@ describe("POST /posts", () => {
 });
 
 
-describe("PUT /posts/:id — autenticação", () => {
 describe("PUT /posts/:id - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente no PUT", async () => {
     const response = await request(app).put(`/posts/${postId}`).send({
@@ -410,7 +407,6 @@ describe("PUT /posts/:id - autenticação", () => {
   });
 });
 
-describe("PUT /posts/:id — validação de campos", () => {
 describe("PUT /posts/:id - validação de campos", () => {
   it("deve retornar 400 quando o body vier vazio", async () => {
     const response = await request(app)
@@ -525,7 +521,6 @@ describe("PUT /posts/:id", () => {
   });
 });
 
-describe("PATCH /posts/:id — autenticação", () => {
 describe("PATCH /posts/:id - autenticação", () => {
   it("deve retornar 401 quando token estiver ausente no PATCH", async () => {
     const response = await request(app)
@@ -546,7 +541,6 @@ describe("PATCH /posts/:id - autenticação", () => {
   });
 });
 
-describe("PATCH /posts/:id — validação de campos", () => {
 describe("PATCH /posts/:id - validação de campos", () => {
   it("deve retornar 400 quando o body vier vazio", async () => {
     const response = await request(app)
