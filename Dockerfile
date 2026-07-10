@@ -17,7 +17,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY tsconfig.json jest.config.cjs ./
-COPY ascii-art-say.config.json ascii-art.txt ./
 COPY src ./src
 COPY tests ./tests
 RUN npm test
@@ -43,7 +42,6 @@ ENV NODE_ENV=production \
 
 COPY --from=prod-deps --chown=nonroot:nonroot /app/node_modules ./node_modules
 COPY --from=build --chown=nonroot:nonroot /app/dist ./dist
-COPY --chown=nonroot:nonroot ascii-art-say.config.json ascii-art.txt ./
 
 EXPOSE 3000
 
