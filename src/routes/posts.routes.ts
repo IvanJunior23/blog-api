@@ -26,10 +26,5 @@ postsRoutes.get("/:id", showPost);
 postsRoutes.put("/:id", requireProfessor, validate(createPostSchema), updatePostById);
 postsRoutes.patch("/:id", requireProfessor, validate(updatePartialPostSchema), patchPostById);
 postsRoutes.delete("/:id", requireProfessor, removePost);
-postsRoutes.get("/:id", showPost);
-postsRoutes.post("/", validate(createPostSchema), storePost);
-postsRoutes.put("/:id", validate(createPostSchema), updatePostById);
-postsRoutes.patch("/:id", validate(updatePartialPostSchema), patchPostById);
-postsRoutes.delete("/:id", removePost);
 
 export default postsRoutes;
